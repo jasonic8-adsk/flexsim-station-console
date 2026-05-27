@@ -1,0 +1,12 @@
+node_modules/
+.aws-sam/
+.sam-build-path
+.deploy-frontend/
+deploy.env
+# build marker lives in %LOCALAPPDATA%\flexsim-station-console\
+dist/
+backend/dist/
+.env
+.env.local
+*.log
+.DS_Store

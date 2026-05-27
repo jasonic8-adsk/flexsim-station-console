@@ -1,0 +1,30 @@
+{
+  "name": "flexsim-station-console",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:backend": "npm install --prefix backend",
+    "build": "node scripts/prepare-sam-build.cjs",
+    "test": "npm test --prefix backend",
+    "db:up": "docker compose up -d dynamodb",
+    "db:wait": "node scripts/wait-for-dynamodb.mjs",
+    "db:down": "docker compose down",
+    "db:create-table": "node scripts/wait-for-dynamodb.mjs && node scripts/create-local-table.mjs",
+    "db:setup": "npm run db:up && npm run db:create-table",
+    "db:verify": "node scripts/wait-for-dynamodb.mjs && node scripts/verify-dynamodb.mjs",
+    "api": "node scripts/start-api.cjs",
+    "frontend": "npx --yes serve frontend -l 5173 --cors",
+    "predev": "npm run install:backend && npm run build && npm run db:setup",
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run api\" \"npm run frontend\"",
+    "deploy:backend": "node scripts/deploy-backend.cjs",
+    "deploy:frontend:stack": "node scripts/deploy-frontend-stack.cjs",
+    "deploy:frontend": "node scripts/deploy-frontend.cjs",
+    "deploy:all": "npm run deploy:backend && npm run deploy:frontend:stack && npm run deploy:frontend"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.826.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

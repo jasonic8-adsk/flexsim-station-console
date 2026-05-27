@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: FlexSim Station Console API
+
+Parameters:
+  AllowedOrigin:
+    Type: String
+    Default: "*"
+    Description: CORS allowed origin (set to your CloudFront URL in production, e.g. https://d123.cloudfront.net)
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 10
+    MemorySize: 256
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref StationPlacementsTable
+        ALLOWED_ORIGIN: !Ref AllowedOrigin
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,OPTIONS'"
+      AllowHeaders: "'Content-Type'"
+      AllowOrigin: !Sub "'${AllowedOrigin}'"
+      MaxAge: "'600'"
+
+Resources:
+  StationPlacementsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-StationPlacements"
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: code
+          AttributeType: S
+        - AttributeName: version
+          AttributeType: N
+      KeySchema:
+        - AttributeName: code
+          KeyType: HASH
+        - AttributeName: version
+          KeyType: RANGE
+
+  CreateSessionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/dist/
+      Handler: createSession.handler
+      Events:
+        CreateSession:
+          Type: Api
+          Properties:
+            Path: /sessions
+            Method: post
+        CreateSessionOptions:
+          Type: Api
+          Properties:
+            Path: /sessions
+            Method: options
+
+  PutPlacementsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/dist/
+      Handler: putPlacements.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StationPlacementsTable
+      Events:
+        PutPlacements:
+          Type: Api
+          Properties:
+            Path: /placements/{code}
+            Method: put
+        PutPlacementsOptions:
+          Type: Api
+          Properties:
+            Path: /placements/{code}
+            Method: options
+
+  GetPlacementsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/dist/
+      Handler: getPlacements.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref StationPlacementsTable
+      Events:
+        GetPlacements:
+          Type: Api
+          Properties:
+            Path: /placements/{code}
+            Method: get
+        GetPlacementsOptions:
+          Type: Api
+          Properties:
+            Path: /placements/{code}
+            Method: options
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL (use as apiBase in frontend config)
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  DynamoDBTableName:
+    Description: DynamoDB table name
+    Value: !Ref StationPlacementsTable
+  AllowedOrigin:
+    Description: CORS origin configured for this deployment
+    Value: !Ref AllowedOrigin
