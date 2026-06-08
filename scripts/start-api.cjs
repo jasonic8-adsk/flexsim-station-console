@@ -52,6 +52,33 @@ function ensureBuild() {
 const buildRoot = ensureBuild();
 const templatePath = path.join(buildRoot, "template.yaml");
 
+const shareMode = process.argv.includes("--share") || process.env.LISTEN_HOST === "0.0.0.0";
+const listenHost = shareMode ? "0.0.0.0" : (process.env.LISTEN_HOST ?? "127.0.0.1");
+const listenPort = process.env.LISTEN_PORT ?? "3000";
+
+function printLanUrls(port, label) {
+  const urls = [];
+  for (const interfaces of Object.values(os.networkInterfaces())) {
+    if (!interfaces) {
+      continue;
+    }
+    for (const net of interfaces) {
+      const isIpv4 = net.family === "IPv4" || net.family === 4;
+      if (isIpv4 && !net.internal) {
+        urls.push(`http://${net.address}:${port}`);
+      }
+    }
+  }
+  if (urls.length === 0) {
+    console.log(`[api] No LAN IPv4 address found for ${label}.`);
+    return;
+  }
+  console.log(`[api] ${label}:`);
+  for (const url of urls) {
+    console.log(`  ${url}`);
+  }
+}
+
 const localRoot = path.join(
   os.homedir(),
   "AppData",
@@ -64,9 +91,13 @@ copyFileSync(path.join(projectRoot, "env.local.json"), envFile);
 
 const dockerNetwork = "flexsim-local";
 
-console.log(`\n[api] Starting SAM local API on http://127.0.0.1:3000`);
+console.log(`\n[api] Starting SAM local API on http://${listenHost}:${listenPort}`);
 console.log(`[api] Template: ${templatePath}`);
-console.log(`[api] Docker network: ${dockerNetwork} (DynamoDB at http://dynamodb:8000)\n`);
+console.log(`[api] Docker network: ${dockerNetwork} (DynamoDB at http://dynamodb:8000)`);
+if (shareMode) {
+  printLanUrls(listenPort, "Share this API URL with colleagues");
+}
+console.log("");
 
 const samArgs = [
   "local",
@@ -77,8 +108,10 @@ const samArgs = [
   envFile,
   "--docker-network",
   dockerNetwork,
+  "--host",
+  listenHost,
   "--port",
-  "3000"
+  listenPort
 ];
 
 const result = spawnSync(process.execPath, [path.join(__dirname, "run-sam.cjs"), ...samArgs], {

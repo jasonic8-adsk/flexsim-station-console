@@ -1,5 +1,13 @@
 let API_BASE = "http://127.0.0.1:3000";
 
+function defaultApiBase() {
+  const host = window.location.hostname;
+  if (host === "localhost" || host === "127.0.0.1") {
+    return "http://127.0.0.1:3000";
+  }
+  return `http://${host}:3000`;
+}
+
 async function resolveApiBase() {
   const queryOverride = new URLSearchParams(window.location.search).get("api");
   if (queryOverride) {
@@ -11,14 +19,22 @@ async function resolveApiBase() {
     if (response.ok) {
       const config = await response.json();
       if (typeof config.apiBase === "string" && config.apiBase.length > 0) {
-        return config.apiBase.replace(/\/$/, "");
+        const configured = config.apiBase.replace(/\/$/, "");
+        const configHost = new URL(configured).hostname;
+        const pageHost = window.location.hostname;
+        if (configHost === "127.0.0.1" || configHost === "localhost") {
+          if (pageHost !== "localhost" && pageHost !== "127.0.0.1") {
+            return defaultApiBase();
+          }
+        }
+        return configured;
       }
     }
   } catch {
-    // Fall back to local default when config.json is unavailable.
+    // Fall back when config.json is unavailable.
   }
 
-  return "http://127.0.0.1:3000";
+  return defaultApiBase();
 }
 
 const state = {
