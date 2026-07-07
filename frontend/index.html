@@ -31,22 +31,34 @@
     <aside class="sidebar sidebar-left">
       <h2 class="sidebar-title sidebar-title--yellow">PRODUCTS</h2>
       <div class="palette palette--products" id="productPalette">
-        <button class="piece piece--product" data-id="Product_A" data-type="product">
-          <div class="piece__icon"></div>
-          <div class="piece__label">Airfryer</div>
-        </button>
-        <button class="piece piece--product" data-id="Product_B" data-type="product">
-          <div class="piece__icon"></div>
-          <div class="piece__label">Utility Knife</div>
-        </button>
-        <button class="piece piece--product" data-id="Product_C" data-type="product">
-          <div class="piece__icon"></div>
-          <div class="piece__label">Sim Wheel</div>
-        </button>
-        <button class="piece piece--product" data-id="Product_D" data-type="product">
-          <div class="piece__icon"></div>
-          <div class="piece__label">Speaker</div>
-        </button>
+        <div class="piece-row">
+          <button class="piece piece--product" data-id="Product_A" data-type="product">
+            <div class="piece__icon"></div>
+            <div class="piece__label">Airfryer</div>
+          </button>
+          <button type="button" class="info-btn info-btn--product" data-product="Product_A" title="Process" aria-label="View process diagram">i</button>
+        </div>
+        <div class="piece-row">
+          <button class="piece piece--product" data-id="Product_B" data-type="product">
+            <div class="piece__icon"></div>
+            <div class="piece__label">Utility Knife</div>
+          </button>
+          <button type="button" class="info-btn info-btn--product" data-product="Product_B" title="Process" aria-label="View process diagram">i</button>
+        </div>
+        <div class="piece-row">
+          <button class="piece piece--product" data-id="Product_C" data-type="product">
+            <div class="piece__icon"></div>
+            <div class="piece__label">Sim Wheel</div>
+          </button>
+          <button type="button" class="info-btn info-btn--product" data-product="Product_C" title="Process" aria-label="View process diagram">i</button>
+        </div>
+        <div class="piece-row">
+          <button class="piece piece--product" data-id="Product_D" data-type="product">
+            <div class="piece__icon"></div>
+            <div class="piece__label">Speaker</div>
+          </button>
+          <button type="button" class="info-btn info-btn--product" data-product="Product_D" title="Process" aria-label="View process diagram">i</button>
+        </div>
       </div>
     </aside>
 
@@ -158,7 +170,10 @@
       <h2 class="sidebar-title sidebar-title--blue">STATIONS</h2>
       <div class="palette palette--stations" id="stationPalette">
         <div class="category-group">
-          <div class="category-label">Plastic Mfg</div>
+          <div class="category-label">
+            <span>Plastic Mfg</span>
+            <button type="button" class="info-btn info-btn--category" data-category="plastic" title="Compare" aria-label="Compare station options">i</button>
+          </div>
           <button class="piece piece--station" data-id="Machine_E" data-type="station">
             <div class="piece__icon"></div>
             <div class="piece__label">3D Printer</div>
@@ -169,7 +184,10 @@
           </button>
         </div>
         <div class="category-group">
-          <div class="category-label">Metal Mfg</div>
+          <div class="category-label">
+            <span>Metal Mfg</span>
+            <button type="button" class="info-btn info-btn--category" data-category="metal" title="Compare" aria-label="Compare station options">i</button>
+          </div>
           <button class="piece piece--station" data-id="Machine_H" data-type="station">
             <div class="piece__icon"></div>
             <div class="piece__label">CNC Milling</div>
@@ -180,7 +198,10 @@
           </button>
         </div>
         <div class="category-group">
-          <div class="category-label">QA</div>
+          <div class="category-label">
+            <span>QA</span>
+            <button type="button" class="info-btn info-btn--category" data-category="inspection" title="Compare" aria-label="Compare station options">i</button>
+          </div>
           <button class="piece piece--station" data-id="Machine_I" data-type="station">
             <div class="piece__icon"></div>
             <div class="piece__label">Automated QA</div>
@@ -191,7 +212,10 @@
           </button>
         </div>
         <div class="category-group">
-          <div class="category-label">Assembly</div>
+          <div class="category-label">
+            <span>Assembly</span>
+            <button type="button" class="info-btn info-btn--category" data-category="assembly" title="Compare" aria-label="Compare station options">i</button>
+          </div>
           <button class="piece piece--station" data-id="Machine_B" data-type="station">
             <div class="piece__icon"></div>
             <div class="piece__label">Auto Assembly</div>
@@ -202,7 +226,10 @@
           </button>
         </div>
         <div class="category-group">
-          <div class="category-label">Storage</div>
+          <div class="category-label">
+            <span>Storage</span>
+            <button type="button" class="info-btn info-btn--category" data-category="storage" title="Compare" aria-label="Compare station options">i</button>
+          </div>
           <button class="piece piece--station" data-id="Machine_C" data-type="station">
             <div class="piece__icon"></div>
             <div class="piece__label">Auto Storage</div>
@@ -215,6 +242,14 @@
       </div>
     </aside>
   </main>
+
+  <div class="modal-overlay modal-overlay--hidden" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="modalMessage">
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <img id="modalImage" class="modal-image modal-image--hidden" src="" alt="">
+      <p class="modal-message modal-message--hidden" id="modalMessage"></p>
+    </div>
+  </div>
 
   <script src="icons.js"></script>
   <script src="app.js"></script>

@@ -68,6 +68,112 @@ const PIECES = {
   Machine_J: { label: "Manual QA", icon: "👁️", type: "station" }
 };
 
+const INFO_ASSETS = "assets/info";
+
+const PROCESS_IMAGES = {
+  Product_A: `${INFO_ASSETS}/processes/process-Product_A.png`,
+  Product_B: `${INFO_ASSETS}/processes/process-Product_B.png`,
+  Product_C: `${INFO_ASSETS}/processes/process-Product_C.png`,
+  Product_D: `${INFO_ASSETS}/processes/process-Product_D.png`
+};
+
+const STORAGE_COMPARE_IMAGE = `${INFO_ASSETS}/comparisons/compare-storage.png`;
+
+function compareImagePath(productId, category) {
+  if (category === "storage") {
+    return STORAGE_COMPARE_IMAGE;
+  }
+  return `${INFO_ASSETS}/comparisons/compare-${productId}-${category}.png`;
+}
+
+function getPlacedProductId() {
+  const productId = state.placements.reader_0;
+  if (productId === "empty") {
+    return null;
+  }
+  return productId;
+}
+
+function openInfoModal(imageSrc, message) {
+  const modal = document.getElementById("infoModal");
+  const img = document.getElementById("modalImage");
+  const msg = document.getElementById("modalMessage");
+
+  if (imageSrc) {
+    img.src = imageSrc;
+    img.alt = message || "Info";
+    img.classList.remove("modal-image--hidden");
+    msg.classList.add("modal-message--hidden");
+    msg.textContent = "";
+  } else {
+    img.src = "";
+    img.classList.add("modal-image--hidden");
+    msg.textContent = message || "";
+    msg.classList.remove("modal-message--hidden");
+  }
+
+  modal.classList.remove("modal-overlay--hidden");
+}
+
+function closeInfoModal() {
+  const modal = document.getElementById("infoModal");
+  const img = document.getElementById("modalImage");
+  modal.classList.add("modal-overlay--hidden");
+  img.src = "";
+}
+
+function handleProductInfoClick(productId) {
+  const src = PROCESS_IMAGES[productId];
+  if (src) {
+    openInfoModal(src);
+  }
+}
+
+function handleCategoryInfoClick(category) {
+  if (category === "storage") {
+    openInfoModal(STORAGE_COMPARE_IMAGE);
+    return;
+  }
+
+  const productId = getPlacedProductId();
+  if (!productId) {
+    openInfoModal(null, "First choose a product");
+    return;
+  }
+  openInfoModal(compareImagePath(productId, category));
+}
+
+function initInfoModal() {
+  document.querySelectorAll(".info-btn--product").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      handleProductInfoClick(btn.dataset.product);
+    });
+  });
+
+  document.querySelectorAll(".info-btn--category").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      handleCategoryInfoClick(btn.dataset.category);
+    });
+  });
+
+  document.getElementById("modalClose").addEventListener("click", closeInfoModal);
+  document.getElementById("infoModal").addEventListener("click", (e) => {
+    if (e.target.id === "infoModal") {
+      closeInfoModal();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !document.getElementById("infoModal").classList.contains("modal-overlay--hidden")) {
+      closeInfoModal();
+    }
+  });
+}
+
 function generateSessionCode() {
   const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   let code = "";
@@ -120,6 +226,7 @@ async function init() {
 
   document.getElementById("btnClear").addEventListener("click", clearAll);
   document.getElementById("btnCommit").addEventListener("click", commitConfiguration);
+  initInfoModal();
 }
 
 function handlePieceClick(el) {

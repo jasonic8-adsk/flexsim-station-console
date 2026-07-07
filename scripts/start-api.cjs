@@ -97,6 +97,7 @@ console.log(`[api] Docker network: ${dockerNetwork} (DynamoDB at http://dynamodb
 if (shareMode) {
   printLanUrls(listenPort, "Share this API URL with colleagues");
 }
+console.log("[api] Note: LAMBDA_RUNTIME 'Failed to get next invocation' after 200/201 is normal for SAM local — ignore if HTTP status is OK.");
 console.log("");
 
 const samArgs = [
